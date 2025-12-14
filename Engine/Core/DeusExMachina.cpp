@@ -23,11 +23,11 @@ using vehicles::Vehicle;
 		return mInstance;
 	}
 
-	void DeusExMachina::Travel() const
+	void DeusExMachina::Travel(const TravelContext& context) const
 	{
 		for (size_t i = 0; i < mVehiclesCount; i++)
 		{
-			mVehicles[i]->TravelByMachina();
+			mVehicles[i]->TravelByMachina(context);
 		}
 	}
 
@@ -66,7 +66,7 @@ using vehicles::Vehicle;
 	{
 		if (mVehiclesCount == 0)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		if (mVehicles[0]->GetOdo() == 0)

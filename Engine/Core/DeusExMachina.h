@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TravelContext.h"
 #include "../Vehicles/Vehicle.h"
 
 namespace engine {
@@ -9,7 +10,7 @@ class DeusExMachina
 {
 public:
 	static DeusExMachina* GetInstance();
-	void Travel() const;
+	void Travel(const TravelContext& context) const;
 	bool AddVehicle(vehicles::Vehicle* vehicle);
 	bool RemoveVehicle(unsigned int i);
 	const vehicles::Vehicle* GetFurthestTravelled() const;

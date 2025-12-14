@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Core/TravelContext.h"
+
 // Forward declaration to avoid circular dependency
 namespace game {
 namespace vehicles {
@@ -36,7 +38,7 @@ public:
 	unsigned int GetMoveTime() const;
 	void AddMoveTime();
 	void ResetMoveTime();
-	virtual void TravelByMachina() = 0;
+	virtual void TravelByMachina(const core::TravelContext& context) = 0;
 
 private:
 	unsigned int mMaxPassengersCount;
