@@ -8,85 +8,68 @@ using vehicles::Vehicle;
 
 	DeusExMachina* DeusExMachina::GetInstance()
 	{
-		if (mInstance != nullptr)
+		if (mInstance == nullptr)
 		{
-			return mInstance;
+			mInstance = new DeusExMachina();
 		}
-		
-		mInstance = new DeusExMachina();
-		mInstance->mVehicles = new Vehicle*[MAX_VEHICLES_COUNT];
-		for (size_t i = 0; i < MAX_VEHICLES_COUNT; i++)
-		{
-			mInstance->mVehicles[i] = nullptr;
-		}
-		mInstance->mVehiclesCount = 0;
 		return mInstance;
 	}
 
 	void DeusExMachina::Travel(const TravelContext& context) const
 	{
-		for (size_t i = 0; i < mVehiclesCount; i++)
+		for (const auto& vehicle : mVehicles)
 		{
-			mVehicles[i]->TravelByMachina(context);
+			vehicle->TravelByMachina(context);
 		}
 	}
 
-	bool DeusExMachina::AddVehicle(Vehicle* vehicle)
+	bool DeusExMachina::AddVehicle(std::unique_ptr<Vehicle> vehicle)
 	{
-		if (mVehiclesCount >= MAX_VEHICLES_COUNT)
+		if (mVehicles.size() >= MAX_VEHICLES_COUNT)
 		{
 			return false;
 		}
 
-		mVehicles[mInstance->mVehiclesCount] = vehicle;
-		mVehiclesCount++;
-
+		mVehicles.push_back(std::move(vehicle));
 		return true;
 	}
 
 	bool DeusExMachina::RemoveVehicle(unsigned int i)
 	{
-		if (i >= mVehiclesCount)
+		if (i >= mVehicles.size())
 		{
 			return false;
 		}
 
-		delete mVehicles[i];
-		for (i; i < mVehiclesCount - 1; i++)
-		{
-			mVehicles[i] = mVehicles[i + 1];
-		}
-		mVehicles[i] = nullptr;
-		mVehiclesCount--;
-
+		mVehicles.erase(mVehicles.begin() + i);
 		return true;
 	}
 
 	const Vehicle* DeusExMachina::GetFurthestTravelled() const
 	{
-		if (mVehiclesCount == 0)
+		if (mVehicles.empty())
 		{
 			return nullptr;
 		}
 
-		if (mVehicles[0]->GetOdo() == 0)
-		{
-			return mVehicles[0];
-		}
+		const Vehicle* furthest = mVehicles[0].get();
+		unsigned int maxDistance = furthest->GetOdo();
 
-		unsigned int maxDistance = 0;
-		size_t maxIndex;
-
-		for (size_t i = 0; i < mVehiclesCount; i++)
+		for (const auto& vehicle : mVehicles)
 		{
-			if (mVehicles[i]->GetOdo() > maxDistance)
+			if (vehicle->GetOdo() > maxDistance)
 			{
-				maxDistance = mVehicles[i]->GetOdo();
-				maxIndex = i;
+				maxDistance = vehicle->GetOdo();
+				furthest = vehicle.get();
 			}
 		}
 
-		return mVehicles[maxIndex];
+		return furthest;
+	}
+
+	size_t DeusExMachina::GetVehicleCount() const
+	{
+		return mVehicles.size();
 	}
 
 } // namespace core
