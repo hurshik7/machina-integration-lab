@@ -4,15 +4,21 @@ namespace engine {
 namespace core {
 
 using vehicles::Vehicle;
-	DeusExMachina* DeusExMachina::mInstance = nullptr;
+
+	std::unique_ptr<DeusExMachina, DeusExMachina::InstanceDeleter> DeusExMachina::mInstance = nullptr;
 
 	DeusExMachina* DeusExMachina::GetInstance()
 	{
 		if (mInstance == nullptr)
 		{
-			mInstance = new DeusExMachina();
+			mInstance.reset(new DeusExMachina());
 		}
-		return mInstance;
+		return mInstance.get();
+	}
+
+	void DeusExMachina::ResetInstance()
+	{
+		mInstance.reset();
 	}
 
 	void DeusExMachina::Travel(const TravelContext& context) const

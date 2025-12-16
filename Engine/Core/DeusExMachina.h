@@ -13,6 +13,8 @@ class DeusExMachina
 {
 public:
 	static DeusExMachina* GetInstance();
+	static void ResetInstance();
+
 	void Travel(const TravelContext& context) const;
 	bool AddVehicle(std::unique_ptr<vehicles::Vehicle> vehicle);
 	bool RemoveVehicle(unsigned int i);
@@ -20,12 +22,19 @@ public:
 	size_t GetVehicleCount() const;
 
 private:
-	DeusExMachina() {};
+	struct InstanceDeleter
+	{
+		void operator()(DeusExMachina* ptr) const { delete ptr; }
+	};
+	friend struct InstanceDeleter;
+
+	DeusExMachina() = default;
+	~DeusExMachina() = default;
 
 	DeusExMachina(const DeusExMachina& other) = delete;
 	DeusExMachina& operator=(const DeusExMachina& rhs) = delete;
 
-	static DeusExMachina* mInstance;
+	static std::unique_ptr<DeusExMachina, InstanceDeleter> mInstance;
 	static constexpr size_t MAX_VEHICLES_COUNT = 10;
 	std::vector<std::unique_ptr<vehicles::Vehicle>> mVehicles;
 };
