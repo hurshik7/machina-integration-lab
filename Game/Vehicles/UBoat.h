@@ -15,7 +15,7 @@ public:
 	virtual unsigned int GetMaxSpeed() const;
 	virtual unsigned int GetSailSpeed() const;
 	virtual unsigned int GetDiveSpeed() const;
-	virtual void TravelByMachina();
+	virtual void TravelByMachina(const engine::core::TravelContext& context) override;
 
 private:
 	enum { IDLE_TIME = 4, MOVE_TIME = 2 };

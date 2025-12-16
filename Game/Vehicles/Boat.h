@@ -17,7 +17,7 @@ public:
 	Boatplane operator+(Airplane& plane);
 	virtual unsigned int GetSailSpeed() const;
 	virtual unsigned int GetMaxSpeed() const;
-	virtual void TravelByMachina();
+	virtual void TravelByMachina(const engine::core::TravelContext& context) override;
 
 private:
 	enum { IDLE_TIME = 1, MOVE_TIME = 2 };

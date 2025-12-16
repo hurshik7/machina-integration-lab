@@ -5,48 +5,31 @@ namespace engine {
 namespace vehicles {
 
 using game::vehicles::Person;
+
 	Vehicle::Vehicle(unsigned int maxPassengersCount)
 		: mMaxPassengersCount(maxPassengersCount)
-		, mPassengersCount(0)
 		, mPassengersWeight(0)
 		, mOdo(0)
 		, mIdleTime(0)
 		, mMoveTime(0)
 	{
-		mPassengersArray = new const Person*[mMaxPassengersCount];
-		for (size_t i = 0; i < mMaxPassengersCount; i++)
-		{
-			mPassengersArray[i] = nullptr;
-		}
+		mPassengers.reserve(mMaxPassengersCount);
 	}
 
-	Vehicle::~Vehicle()
-	{
-		for (size_t i = 0; i < mMaxPassengersCount; i++)
-		{
-			delete mPassengersArray[i];
-			mPassengersArray[i] = nullptr;
-		}
-		delete[] mPassengersArray;
-	}
+	Vehicle::~Vehicle() = default;
 
 	Vehicle::Vehicle(const Vehicle& other)
 		: mMaxPassengersCount(other.mMaxPassengersCount)
-		, mPassengersCount(other.mPassengersCount)
 		, mPassengersWeight(other.mPassengersWeight)
 		, mOdo(other.mOdo)
 		, mIdleTime(other.mIdleTime)
 		, mMoveTime(other.mMoveTime)
 	{
-		mPassengersArray = new const Person*[mMaxPassengersCount];
-		for (size_t i = 0; i < mPassengersCount; i++)
+		mPassengers.reserve(mMaxPassengersCount);
+		for (const std::unique_ptr<const Person>& passenger : other.mPassengers)
 		{
-			mPassengersArray[i] = new Person(other.mPassengersArray[i]->GetName().c_str(), other.mPassengersArray[i]->GetWeight());
-		}
-		
-		for (size_t i = mPassengersCount; i < mMaxPassengersCount; i++)
-		{
-			mPassengersArray[i] = nullptr;
+			mPassengers.push_back(std::make_unique<Person>(
+				passenger->GetName().c_str(), passenger->GetWeight()));
 		}
 	}
 
@@ -57,70 +40,63 @@ using game::vehicles::Person;
 			return *this;
 		}
 
-		for (size_t i = 0; i < mMaxPassengersCount; i++)
-		{
-			delete mPassengersArray[i];
-			mPassengersArray[i] = nullptr;
-		}
-		delete[] mPassengersArray;
-
 		mMaxPassengersCount = rhs.mMaxPassengersCount;
-		mPassengersCount = rhs.mPassengersCount;
 		mPassengersWeight = rhs.mPassengersWeight;
 		mOdo = rhs.mOdo;
 		mIdleTime = rhs.mIdleTime;
 		mMoveTime = rhs.mMoveTime;
-		mPassengersArray = new const Person*[mMaxPassengersCount];
-		for (size_t i = 0; i < mPassengersCount; i++)
-		{
-			mPassengersArray[i] = new Person(rhs.mPassengersArray[i]->GetName().c_str(), rhs.mPassengersArray[i]->GetWeight());
-		}
 
-		for (size_t i = mPassengersCount; i < mMaxPassengersCount; i++)
+		mPassengers.clear();
+		mPassengers.reserve(mMaxPassengersCount);
+		for (const std::unique_ptr<const Person>& passenger : rhs.mPassengers)
 		{
-			mPassengersArray[i] = nullptr;
+			mPassengers.push_back(std::make_unique<Person>(
+				passenger->GetName().c_str(), passenger->GetWeight()));
 		}
 
 		return *this;
 	}
 
-	bool Vehicle::AddPassenger(const Person* person)
+	bool Vehicle::AddPassenger(std::unique_ptr<const Person> person)
 	{
-		if (mPassengersCount >= mMaxPassengersCount)
+		if (mPassengers.size() >= mMaxPassengersCount)
 		{
 			return false;
 		}
 
-		mPassengersArray[mPassengersCount] = person;
-		mPassengersCount++;
 		mPassengersWeight += person->GetWeight();
-
+		mPassengers.push_back(std::move(person));
 		return true;
 	}
 
 	bool Vehicle::RemovePassenger(unsigned int i)
 	{
-		if (i >= mPassengersCount)
+		if (i >= mPassengers.size())
 		{
 			return false;
 		}
 
-		mPassengersWeight -= mPassengersArray[i]->GetWeight();
-
-		delete mPassengersArray[i];
-		for (i; i < mPassengersCount - 1; i++)
-		{
-			mPassengersArray[i] = mPassengersArray[i + 1];
-		}
-		mPassengersArray[i] = nullptr;
-
-		mPassengersCount--;
+		mPassengersWeight -= mPassengers[i]->GetWeight();
+		mPassengers.erase(mPassengers.begin() + i);
 		return true;
+	}
+
+	std::unique_ptr<const Person> Vehicle::ReleasePassenger(unsigned int i)
+	{
+		if (i >= mPassengers.size())
+		{
+			return nullptr;
+		}
+
+		mPassengersWeight -= mPassengers[i]->GetWeight();
+		std::unique_ptr<const Person> released = std::move(mPassengers[i]);
+		mPassengers.erase(mPassengers.begin() + i);
+		return released;
 	}
 
 	unsigned int Vehicle::GetPassengersCount() const
 	{
-		return mPassengersCount;
+		return static_cast<unsigned int>(mPassengers.size());
 	}
 
 	unsigned int Vehicle::GetMaxPassengersCount() const
@@ -130,11 +106,11 @@ using game::vehicles::Person;
 
 	const Person* Vehicle::GetPassenger(unsigned int i) const
 	{
-		if (i >= mPassengersCount)
+		if (i >= mPassengers.size())
 		{
 			return nullptr;
 		}
-		return mPassengersArray[i];
+		return mPassengers[i].get();
 	}
 
 	unsigned int Vehicle::GetPassengersWeight() const
@@ -142,14 +118,10 @@ using game::vehicles::Person;
 		return mPassengersWeight;
 	}
 
-	void Vehicle::TransferAllPassengers()
+	std::vector<std::unique_ptr<const Person>> Vehicle::ReleaseAllPassengers()
 	{
-		for (size_t i = 0; i < mPassengersCount; i++)
-		{
-			mPassengersArray[i] = nullptr;
-		}
-		mPassengersCount = 0;
 		mPassengersWeight = 0;
+		return std::move(mPassengers);
 	}
 
 	unsigned int Vehicle::GetOdo() const

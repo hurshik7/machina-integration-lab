@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 #include "../Engine/Vehicles/Vehicle.h"
 #include "Vehicles/Airplane.h"
@@ -11,6 +12,7 @@
 #include "Vehicles/Trailer.h"
 #include "Vehicles/UBoat.h"
 #include "../Engine/Core/DeusExMachina.h"
+#include "../Engine/Core/TravelContext.h"
 #include "Vehicles/Person.h"
 
 using namespace game::vehicles;
@@ -18,34 +20,34 @@ using engine::core::DeusExMachina;
 
 int main()
 {
-	Person* p = new Person("Bob", 85);
+	std::unique_ptr<Person> p = std::make_unique<Person>("Bob", 85);
 
 	assert(p->GetName() == std::string("Bob"));
 	assert(p->GetWeight() == 85);
 
-	Person* p2 = new Person("James", 75);
-	Person* p3 = new Person("Tina", 52);
+	std::unique_ptr<Person> p2 = std::make_unique<Person>("James", 75);
+	std::unique_ptr<Person> p3 = std::make_unique<Person>("Tina", 52);
 
-	Person* p4 = new Person("Peter", 78);
-	Person* p5 = new Person("Jane", 48);
-	Person* p6 = new Person("Steve", 88);
+	std::unique_ptr<Person> p4 = std::make_unique<Person>("Peter", 78);
+	std::unique_ptr<Person> p5 = std::make_unique<Person>("Jane", 48);
+	std::unique_ptr<Person> p6 = std::make_unique<Person>("Steve", 88);
 
 	Airplane a(5);
-	a.AddPassenger(p);
-	a.AddPassenger(p2);
-	a.AddPassenger(p3);
+	a.AddPassenger(std::move(p));
+	a.AddPassenger(std::move(p2));
+	a.AddPassenger(std::move(p3));
 
 	assert(a.GetMaxPassengersCount() == 5);
 	assert(a.GetPassengersCount() == 3);
-	assert(a.GetPassenger(1) == p2);
+	assert(a.GetPassenger(1)->GetName() == "James");
 	assert(a.GetFlySpeed() == 648);
 	assert(a.GetDriveSpeed() == 59);
 	assert(a.GetMaxSpeed() == 648);
 
 	Boat b(5);
-	b.AddPassenger(p4);
-	b.AddPassenger(p5);
-	b.AddPassenger(p6);
+	b.AddPassenger(std::move(p4));
+	b.AddPassenger(std::move(p5));
+	b.AddPassenger(std::move(p6));
 
 	Boatplane bp = a + b;
 
@@ -61,34 +63,37 @@ int main()
 	bool bSame = deusExMachina1 == deusExMachina2;
 	assert(bSame);
 
-	Airplane* airplane = new Airplane(5);
-	Boat* boat = new Boat(5);
-	Boatplane* boatplane = new Boatplane(5);
-	Motorcycle* motorcycle = new Motorcycle();
-	Sedan* sedan = new Sedan();
-	Sedan* sedan2 = new Sedan();
-	UBoat* uboat = new UBoat();
+	std::unique_ptr<Airplane> airplane = std::make_unique<Airplane>(5);
+	std::unique_ptr<Boat> boat = std::make_unique<Boat>(5);
+	std::unique_ptr<Boatplane> boatplane = std::make_unique<Boatplane>(5);
+	std::unique_ptr<Motorcycle> motorcycle = std::make_unique<Motorcycle>();
+	std::unique_ptr<Sedan> sedan = std::make_unique<Sedan>();
+	std::unique_ptr<Sedan> sedan2 = std::make_unique<Sedan>();
+	std::unique_ptr<UBoat> uboat = std::make_unique<UBoat>();
 
-	bool bAdded = sedan2->AddTrailer(new Trailer(50));
+	bool bAdded = sedan2->AddTrailer(std::make_unique<Trailer>(50));
 	assert(bAdded);
 
-	bAdded = sedan2->AddTrailer(new Trailer(60));
+	bAdded = sedan2->AddTrailer(std::make_unique<Trailer>(60));
 	assert(!bAdded);
 
-	bAdded = deusExMachina1->AddVehicle(airplane);
+	// GetFurthestTravelled 테스트용 raw pointer 저장
+	const Boat* boatPtr = boat.get();
+
+	bAdded = deusExMachina1->AddVehicle(std::move(airplane));
 	assert(bAdded);
 
-	deusExMachina1->AddVehicle(boat);
-	deusExMachina1->AddVehicle(boatplane);
-	deusExMachina1->AddVehicle(motorcycle);
-	deusExMachina1->AddVehicle(sedan);
-	deusExMachina1->AddVehicle(sedan2);
-	deusExMachina1->AddVehicle(uboat);
-	deusExMachina1->AddVehicle(new Airplane(5));
-	deusExMachina1->AddVehicle(new Airplane(5));
-	deusExMachina1->AddVehicle(new Airplane(5));
+	deusExMachina1->AddVehicle(std::move(boat));
+	deusExMachina1->AddVehicle(std::move(boatplane));
+	deusExMachina1->AddVehicle(std::move(motorcycle));
+	deusExMachina1->AddVehicle(std::move(sedan));
+	deusExMachina1->AddVehicle(std::move(sedan2));
+	deusExMachina1->AddVehicle(std::move(uboat));
+	deusExMachina1->AddVehicle(std::make_unique<Airplane>(5));
+	deusExMachina1->AddVehicle(std::make_unique<Airplane>(5));
+	deusExMachina1->AddVehicle(std::make_unique<Airplane>(5));
 
-	bAdded = deusExMachina1->AddVehicle(new Airplane(5));
+	bAdded = deusExMachina1->AddVehicle(std::make_unique<Airplane>(5));
 
 	assert(!bAdded);
 
@@ -100,20 +105,21 @@ int main()
 	bRemoved = deusExMachina1->RemoveVehicle(9);
 	assert(!bRemoved);
 
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
-	deusExMachina1->Travel(); 
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
-	deusExMachina1->Travel(); 
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
-	deusExMachina1->Travel();
+	engine::core::TravelContext context;
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
+	deusExMachina1->Travel(context);
 
-	assert(deusExMachina1->GetFurthestTravelled() == boat);
+	assert(deusExMachina1->GetFurthestTravelled() == boatPtr);
 
 	return 0;
 }

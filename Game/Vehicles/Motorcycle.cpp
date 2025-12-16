@@ -23,7 +23,7 @@ namespace vehicles {
 		return std::max(static_cast<int>(400 + (2 * GetPassengersWeight()) - pow(GetPassengersWeight() / static_cast<double>(15), 3) + 0.5), 0);
 	}
 
-	void Motorcycle::TravelByMachina()
+	void Motorcycle::TravelByMachina(const engine::core::TravelContext& /*context*/)
 	{
 		unsigned int moveTime = GetMoveTime();
 		unsigned int idleTime = GetIdleTime();

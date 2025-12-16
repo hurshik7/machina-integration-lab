@@ -23,7 +23,7 @@ using vehicles::Vehicle;
 
 	void DeusExMachina::Travel(const TravelContext& context) const
 	{
-		for (const auto& vehicle : mVehicles)
+		for (const std::unique_ptr<vehicles::Vehicle>& vehicle : mVehicles)
 		{
 			vehicle->TravelByMachina(context);
 		}
@@ -61,7 +61,7 @@ using vehicles::Vehicle;
 		const Vehicle* furthest = mVehicles[0].get();
 		unsigned int maxDistance = furthest->GetOdo();
 
-		for (const auto& vehicle : mVehicles)
+		for (const std::unique_ptr<vehicles::Vehicle>& vehicle : mVehicles)
 		{
 			if (vehicle->GetOdo() > maxDistance)
 			{

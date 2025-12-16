@@ -29,7 +29,7 @@ namespace vehicles {
 		return flyingSpeed > sailingSpeed ? flyingSpeed : sailingSpeed;
 	}
 
-	void Boatplane::TravelByMachina()
+	void Boatplane::TravelByMachina(const engine::core::TravelContext& /*context*/)
 	{
 		unsigned int moveTime = GetMoveTime();
 		unsigned int idleTime = GetIdleTime();
@@ -42,7 +42,7 @@ namespace vehicles {
 			AddOdo(speed);
 		}
 		else if (moveTime == MOVE_TIME && idleTime < IDLE_TIME)
-		{ 
+		{
 			//idle time
 			AddIdleTime();
 			if (GetIdleTime() == IDLE_TIME)

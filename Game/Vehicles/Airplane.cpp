@@ -1,7 +1,10 @@
 #include <cmath>
+#include <memory>
+#include <vector>
 #include "Airplane.h"
 #include "Boat.h"
 #include "Boatplane.h"
+#include "Person.h"
 
 namespace game {
 namespace vehicles {
@@ -19,17 +22,18 @@ namespace vehicles {
 	{
 		unsigned int totalMaxPassengersCount = GetMaxPassengersCount() + boat.GetMaxPassengersCount();
 		Boatplane bp(totalMaxPassengersCount);
-		for (size_t i = 0; i < GetPassengersCount(); i++)
-		{
-			bp.AddPassenger(GetPassenger(i));
-		}
-		TransferAllPassengers();
 
-		for (size_t i = 0; i < boat.GetPassengersCount(); i++)
+		std::vector<std::unique_ptr<const Person>> myPassengers = ReleaseAllPassengers();
+		for (std::unique_ptr<const Person>& passenger : myPassengers)
 		{
-			bp.AddPassenger(boat.GetPassenger(i));
+			bp.AddPassenger(std::move(passenger));
 		}
-		boat.TransferAllPassengers();
+
+		std::vector<std::unique_ptr<const Person>> boatPassengers = boat.ReleaseAllPassengers();
+		for (std::unique_ptr<const Person>& passenger : boatPassengers)
+		{
+			bp.AddPassenger(std::move(passenger));
+		}
 
 		return bp;
 	}
@@ -51,7 +55,7 @@ namespace vehicles {
 		return static_cast<unsigned int>(4.0 * exp(((400.0 - GetPassengersWeight()) / 70.0)) + 0.5);
 	}
 
-	void Airplane::TravelByMachina()
+	void Airplane::TravelByMachina(const engine::core::TravelContext& /*context*/)
 	{
 		unsigned int moveTime = GetMoveTime();
 		unsigned int idleTime = GetIdleTime();

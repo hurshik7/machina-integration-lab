@@ -6,19 +6,17 @@ namespace vehicles {
 
 	Sedan::Sedan()
 		: Vehicle(4)
-		, mbIsTrailOn(false)
 		, mTrailer(nullptr)
 	{
 	}
 
 	Sedan::Sedan(const Sedan& other)
 		: Vehicle(other)
-		, mbIsTrailOn(other.mbIsTrailOn)
 		, mTrailer(nullptr)
 	{
 		if (other.mTrailer != nullptr)
 		{
-			mTrailer = new Trailer(other.mTrailer->GetWeight());
+			mTrailer = std::make_unique<Trailer>(other.mTrailer->GetWeight());
 		}
 	}
 
@@ -31,46 +29,41 @@ namespace vehicles {
 
 		Vehicle::operator=(rhs);
 
-		delete mTrailer;
-		mbIsTrailOn = rhs.mbIsTrailOn;
-		mTrailer = nullptr;
+		mTrailer.reset();
 		if (rhs.mTrailer != nullptr)
 		{
-			mTrailer = new Trailer(rhs.mTrailer->GetWeight());
+			mTrailer = std::make_unique<Trailer>(rhs.mTrailer->GetWeight());
 		}
 		return *this;
 	}
 
-	Sedan::~Sedan()
-	{
-		delete mTrailer;
-	}
+	Sedan::~Sedan() = default;
 
-	bool Sedan::AddTrailer(const Trailer* trailer)
+	bool Sedan::AddTrailer(std::unique_ptr<Trailer> trailer)
 	{
-		if (mbIsTrailOn == true)
+		if (mTrailer != nullptr)
 		{
 			return false;
 		}
 
-		mTrailer = trailer;
-		mbIsTrailOn = true;
-
+		mTrailer = std::move(trailer);
 		return true;
 	}
 
 	bool Sedan::RemoveTrailer()
 	{
-		if (mbIsTrailOn == false)
+		if (mTrailer == nullptr)
 		{
 			return false;
 		}
 
-		delete mTrailer;
-		mTrailer = nullptr;
-		mbIsTrailOn = false;
-
+		mTrailer.reset();
 		return true;
+	}
+
+	const Trailer* Sedan::GetTrailer() const
+	{
+		return mTrailer.get();
 	}
 
 	unsigned int Sedan::GetMaxSpeed() const
@@ -82,7 +75,7 @@ namespace vehicles {
 	{
 		unsigned int ret;
 		unsigned int totalWeight = GetPassengersWeight();
-		if (mbIsTrailOn == true)
+		if (mTrailer != nullptr)
 		{
 			totalWeight += mTrailer->GetWeight();
 		}
@@ -110,10 +103,9 @@ namespace vehicles {
 		return ret;
 	}
 
-	void Sedan::TravelByMachina()
+	void Sedan::TravelByMachina(const engine::core::TravelContext& /*context*/)
 	{
 		unsigned int moveTime = GetMoveTime();
-		unsigned int idleTime = GetIdleTime();
 		unsigned int speed = GetMaxSpeed();
 		//check available
 		if (moveTime < MOVE_TIME)
@@ -125,7 +117,7 @@ namespace vehicles {
 		else if (moveTime == MOVE_TIME)
 		{
 			AddIdleTime();
-			if (mbIsTrailOn == true)
+			if (mTrailer != nullptr)
 			{
 				if (GetIdleTime() == IDLE_TIME_TRAIL_ON)
 				{

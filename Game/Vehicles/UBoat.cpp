@@ -27,7 +27,7 @@ namespace vehicles {
 		return static_cast<unsigned int>((500 * log((GetPassengersWeight() + 150) / static_cast<double>(150)) + 30) + 0.5);
 	}
 
-	void UBoat::TravelByMachina()
+	void UBoat::TravelByMachina(const engine::core::TravelContext& /*context*/)
 	{
 		unsigned int moveTime = GetMoveTime();
 		unsigned int idleTime = GetIdleTime();
