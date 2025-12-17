@@ -1,18 +1,19 @@
 #pragma once
 
 #include <string>
+#include "../../Engine/Interfaces/IPassenger.h"
 
 namespace game {
 namespace vehicles {
 
-class Person
+class Person : public engine::interfaces::IPassenger
 {
 public:
 	Person(const char* name, unsigned int weight);
 	virtual ~Person();
 
-	const std::string& GetName() const;
-	unsigned int GetWeight() const;
+	virtual const std::string& GetName() const override;
+	virtual unsigned int GetWeight() const override;
 
 private:
 	std::string mName;

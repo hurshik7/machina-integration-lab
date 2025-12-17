@@ -1,10 +1,9 @@
 #include "Vehicle.h"
-#include "../../Game/Vehicles/Person.h"
 
 namespace engine {
 namespace vehicles {
 
-using game::vehicles::Person;
+using engine::interfaces::IPassenger;
 
 	Vehicle::Vehicle(unsigned int maxPassengersCount)
 		: mMaxPassengersCount(maxPassengersCount)
@@ -54,15 +53,15 @@ using game::vehicles::Person;
 		return *this;
 	}
 
-	bool Vehicle::AddPassenger(std::unique_ptr<const Person> person)
+	bool Vehicle::AddPassenger(std::unique_ptr<const IPassenger> passenger)
 	{
 		if (mPassengers.size() >= mMaxPassengersCount)
 		{
 			return false;
 		}
 
-		mPassengersWeight += person->GetWeight();
-		mPassengers.push_back(std::move(person));
+		mPassengersWeight += passenger->GetWeight();
+		mPassengers.push_back(std::move(passenger));
 		return true;
 	}
 
@@ -78,7 +77,7 @@ using game::vehicles::Person;
 		return true;
 	}
 
-	std::unique_ptr<const Person> Vehicle::ReleasePassenger(unsigned int i)
+	std::unique_ptr<const IPassenger> Vehicle::ReleasePassenger(unsigned int i)
 	{
 		if (i >= mPassengers.size())
 		{
@@ -86,7 +85,7 @@ using game::vehicles::Person;
 		}
 
 		mPassengersWeight -= mPassengers[i]->GetWeight();
-		std::unique_ptr<const Person> released = std::move(mPassengers[i]);
+		std::unique_ptr<const IPassenger> released = std::move(mPassengers[i]);
 		mPassengers.erase(mPassengers.begin() + i);
 		return released;
 	}
@@ -101,7 +100,7 @@ using game::vehicles::Person;
 		return mMaxPassengersCount;
 	}
 
-	const Person* Vehicle::GetPassenger(unsigned int i) const
+	const IPassenger* Vehicle::GetPassenger(unsigned int i) const
 	{
 		if (i >= mPassengers.size())
 		{
@@ -115,7 +114,7 @@ using game::vehicles::Person;
 		return mPassengersWeight;
 	}
 
-	std::vector<std::unique_ptr<const Person>> Vehicle::ReleaseAllPassengers()
+	std::vector<std::unique_ptr<const IPassenger>> Vehicle::ReleaseAllPassengers()
 	{
 		mPassengersWeight = 0;
 		return std::move(mPassengers);

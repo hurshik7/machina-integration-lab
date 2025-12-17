@@ -12,6 +12,10 @@ public:
 	Boatplane(unsigned int maxPassengersCount);
 	virtual ~Boatplane();
 
+	// Move-only (inherited from Vehicle)
+	Boatplane(Boatplane&&) = default;
+	Boatplane& operator=(Boatplane&&) = default;
+
 	virtual unsigned int GetFlySpeed() const;
 	virtual unsigned int GetSailSpeed() const;
 	virtual unsigned int GetMaxSpeed() const;

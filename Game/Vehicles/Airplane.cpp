@@ -4,10 +4,12 @@
 #include "Airplane.h"
 #include "Boat.h"
 #include "Boatplane.h"
-#include "Person.h"
+#include "../../Engine/Interfaces/IPassenger.h"
 
 namespace game {
 namespace vehicles {
+
+using engine::interfaces::IPassenger;
 
 	Airplane::Airplane(unsigned int maxPassengersCount)
 		: Vehicle(maxPassengersCount)
@@ -23,14 +25,14 @@ namespace vehicles {
 		unsigned int totalMaxPassengersCount = GetMaxPassengersCount() + boat.GetMaxPassengersCount();
 		Boatplane bp(totalMaxPassengersCount);
 
-		std::vector<std::unique_ptr<const Person>> myPassengers = ReleaseAllPassengers();
-		for (std::unique_ptr<const Person>& passenger : myPassengers)
+		std::vector<std::unique_ptr<const IPassenger>> myPassengers = ReleaseAllPassengers();
+		for (std::unique_ptr<const IPassenger>& passenger : myPassengers)
 		{
 			bp.AddPassenger(std::move(passenger));
 		}
 
-		std::vector<std::unique_ptr<const Person>> boatPassengers = boat.ReleaseAllPassengers();
-		for (std::unique_ptr<const Person>& passenger : boatPassengers)
+		std::vector<std::unique_ptr<const IPassenger>> boatPassengers = boat.ReleaseAllPassengers();
+		for (std::unique_ptr<const IPassenger>& passenger : boatPassengers)
 		{
 			bp.AddPassenger(std::move(passenger));
 		}

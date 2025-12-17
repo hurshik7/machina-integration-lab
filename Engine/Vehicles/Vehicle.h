@@ -4,13 +4,7 @@
 #include <vector>
 
 #include "../Core/TravelContext.h"
-
-// Forward declaration to avoid circular dependency
-namespace game {
-namespace vehicles {
-	class Person;
-}
-}
+#include "../Interfaces/IPassenger.h"
 
 namespace engine {
 namespace vehicles {
@@ -29,14 +23,14 @@ public:
 
 	virtual unsigned int GetMaxSpeed() const = 0;
 
-	bool AddPassenger(std::unique_ptr<const game::vehicles::Person> person);
+	bool AddPassenger(std::unique_ptr<const engine::interfaces::IPassenger> passenger);
 	bool RemovePassenger(unsigned int i);
-	std::unique_ptr<const game::vehicles::Person> ReleasePassenger(unsigned int i);
-	const game::vehicles::Person* GetPassenger(unsigned int i) const;
+	std::unique_ptr<const engine::interfaces::IPassenger> ReleasePassenger(unsigned int i);
+	const engine::interfaces::IPassenger* GetPassenger(unsigned int i) const;
 	unsigned int GetPassengersCount() const;
 	unsigned int GetMaxPassengersCount() const;
 	unsigned int GetPassengersWeight() const;
-	std::vector<std::unique_ptr<const game::vehicles::Person>> ReleaseAllPassengers();
+	std::vector<std::unique_ptr<const engine::interfaces::IPassenger>> ReleaseAllPassengers();
 
 	unsigned int GetOdo() const;
 	void AddOdo(unsigned int distance);
@@ -54,7 +48,7 @@ private:
 	unsigned int mOdo;
 	unsigned int mIdleTime;
 	unsigned int mMoveTime;
-	std::vector<std::unique_ptr<const game::vehicles::Person>> mPassengers;
+	std::vector<std::unique_ptr<const engine::interfaces::IPassenger>> mPassengers;
 };
 
 } // namespace vehicles
