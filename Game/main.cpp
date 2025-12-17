@@ -58,10 +58,9 @@ int main()
 	assert(b.GetPassengersCount() == 0);
 
 	DeusExMachina* deusExMachina1 = DeusExMachina::GetInstance();
-	DeusExMachina* deusExMachina2 = DeusExMachina::GetInstance();
+	[[maybe_unused]] DeusExMachina* deusExMachina2 = DeusExMachina::GetInstance();
 
-	bool bSame = deusExMachina1 == deusExMachina2;
-	assert(bSame);
+	assert(deusExMachina1 == deusExMachina2);
 
 	std::unique_ptr<Airplane> airplane = std::make_unique<Airplane>(5);
 	std::unique_ptr<Boat> boat = std::make_unique<Boat>(5);
@@ -77,8 +76,8 @@ int main()
 	bAdded = sedan2->AddTrailer(std::make_unique<Trailer>(60));
 	assert(!bAdded);
 
-	// GetFurthestTravelled 테스트용 raw pointer 저장
-	const Boat* boatPtr = boat.get();
+	// GetFurthestTravelled raw pointer check for testing.
+	[[maybe_unused]] const Boat* boatPtr = boat.get();
 
 	bAdded = deusExMachina1->AddVehicle(std::move(airplane));
 	assert(bAdded);
