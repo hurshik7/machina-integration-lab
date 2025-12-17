@@ -227,36 +227,68 @@ sedan->AddTrailer(std::make_unique<Trailer>(50));
 
 ---
 
-## Copy Semantics
+## Move-Only Semantics
 
-### Vehicle Copy Constructor/Assignment
-Both perform **deep copy** of passengers:
+### Why Move-Only?
+Vehicle hierarchy is now **move-only** (copy disabled). This is a common pattern in large-scale game engines like EA Frostbite:
+
+| Reason | Explanation |
+|--------|-------------|
+| **Prevent accidental copies** | Deep copying vehicles with passengers is expensive |
+| **Clear ownership** | Only one owner at a time - no ambiguity |
+| **Intent enforcement** | Compiler rejects unintended copies |
+| **Engine-style design** | Matches patterns used in AAA game engines |
+
+### Vehicle Move Constructor/Assignment
 
 ```cpp
-Vehicle::Vehicle(const Vehicle& other)
+// Header - copy deleted, move enabled
+Vehicle(const Vehicle&) = delete;
+Vehicle& operator=(const Vehicle&) = delete;
+Vehicle(Vehicle&& other) noexcept;
+Vehicle& operator=(Vehicle&& rhs) noexcept;
+
+// Implementation
+Vehicle::Vehicle(Vehicle&& other) noexcept
+    : mMaxPassengersCount(other.mMaxPassengersCount)
+    , mPassengersWeight(other.mPassengersWeight)
+    , mOdo(other.mOdo)
+    , mIdleTime(other.mIdleTime)
+    , mMoveTime(other.mMoveTime)
+    , mPassengers(std::move(other.mPassengers))
 {
-    for (const std::unique_ptr<const Person>& passenger : other.mPassengers)
-    {
-        mPassengers.push_back(std::make_unique<Person>(
-            passenger->GetName().c_str(), passenger->GetWeight()));
-    }
+    other.mPassengersWeight = 0;
+    other.mOdo = 0;
+    other.mIdleTime = 0;
+    other.mMoveTime = 0;
 }
 ```
 
-### Sedan Copy Constructor/Assignment
-Performs **deep copy** of trailer:
+### Sedan Move Constructor/Assignment
 
 ```cpp
-Sedan::Sedan(const Sedan& other)
-    : Vehicle(other)
-    , mTrailer(nullptr)
+// Header - copy deleted, move enabled
+Sedan(const Sedan&) = delete;
+Sedan& operator=(const Sedan&) = delete;
+Sedan(Sedan&& other) noexcept;
+Sedan& operator=(Sedan&& rhs) noexcept;
+
+// Implementation
+Sedan::Sedan(Sedan&& other) noexcept
+    : Vehicle(std::move(other))
+    , mTrailer(std::move(other.mTrailer))
 {
-    if (other.mTrailer != nullptr)
-    {
-        mTrailer = std::make_unique<Trailer>(other.mTrailer->GetWeight());
-    }
 }
 ```
+
+### Derived Classes
+Other derived classes (Airplane, Boat, Boatplane, etc.) automatically become non-copyable because their base class `Vehicle` is non-copyable. They can still be moved via implicit move operations.
+
+### operator+ Still Works
+`Airplane::operator+(Boat&)` and `Boat::operator+(Airplane&)` return `Boatplane` by value. This works because:
+1. C++17 guarantees copy elision (NRVO)
+2. Even without elision, move constructor is called
+3. The implementation already uses `ReleaseAllPassengers()` with move semantics
 
 ---
 
@@ -301,10 +333,13 @@ Sedan::Sedan(const Sedan& other)
 
 ---
 
-## Interview Discussion Points
+## Discussion Points
 
 - Why `unique_ptr` over `shared_ptr`? (Single ownership is clearer and more efficient)
 - Custom deleter pattern for encapsulated singletons
 - RAII and exception safety guarantees
 - Migration strategy: change API signatures first, then fix compilation errors
-- Deep copy semantics with smart pointers
+- **Why move-only?** Prevents expensive accidental deep copies, enforces ownership semantics
+- **Move vs Copy trade-off**: Move-only is stricter but safer for resource-heavy objects
+- **noexcept on move operations**: Enables STL optimizations (e.g., vector reallocation)
+- **Derived class behavior**: Non-copyable base makes all derived classes non-copyable
