@@ -10,34 +10,26 @@ namespace vehicles {
 	{
 	}
 
-	Sedan::Sedan(const Sedan& other)
-		: Vehicle(other)
-		, mTrailer(nullptr)
+	Sedan::~Sedan() = default;
+
+	Sedan::Sedan(Sedan&& other) noexcept
+		: Vehicle(std::move(other))
+		, mTrailer(std::move(other.mTrailer))
 	{
-		if (other.mTrailer != nullptr)
-		{
-			mTrailer = std::make_unique<Trailer>(other.mTrailer->GetWeight());
-		}
 	}
 
-	Sedan& Sedan::operator=(const Sedan& rhs)
+	Sedan& Sedan::operator=(Sedan&& rhs) noexcept
 	{
 		if (this == &rhs)
 		{
 			return *this;
 		}
 
-		Vehicle::operator=(rhs);
+		Vehicle::operator=(std::move(rhs));
+		mTrailer = std::move(rhs.mTrailer);
 
-		mTrailer.reset();
-		if (rhs.mTrailer != nullptr)
-		{
-			mTrailer = std::make_unique<Trailer>(rhs.mTrailer->GetWeight());
-		}
 		return *this;
 	}
-
-	Sedan::~Sedan() = default;
 
 	bool Sedan::AddTrailer(std::unique_ptr<Trailer> trailer)
 	{

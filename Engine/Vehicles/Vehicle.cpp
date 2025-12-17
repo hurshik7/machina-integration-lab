@@ -18,22 +18,21 @@ using game::vehicles::Person;
 
 	Vehicle::~Vehicle() = default;
 
-	Vehicle::Vehicle(const Vehicle& other)
+	Vehicle::Vehicle(Vehicle&& other) noexcept
 		: mMaxPassengersCount(other.mMaxPassengersCount)
 		, mPassengersWeight(other.mPassengersWeight)
 		, mOdo(other.mOdo)
 		, mIdleTime(other.mIdleTime)
 		, mMoveTime(other.mMoveTime)
+		, mPassengers(std::move(other.mPassengers))
 	{
-		mPassengers.reserve(mMaxPassengersCount);
-		for (const std::unique_ptr<const Person>& passenger : other.mPassengers)
-		{
-			mPassengers.push_back(std::make_unique<Person>(
-				passenger->GetName().c_str(), passenger->GetWeight()));
-		}
+		other.mPassengersWeight = 0;
+		other.mOdo = 0;
+		other.mIdleTime = 0;
+		other.mMoveTime = 0;
 	}
 
-	Vehicle& Vehicle::operator=(const Vehicle& rhs)
+	Vehicle& Vehicle::operator=(Vehicle&& rhs) noexcept
 	{
 		if (this == &rhs)
 		{
@@ -45,14 +44,12 @@ using game::vehicles::Person;
 		mOdo = rhs.mOdo;
 		mIdleTime = rhs.mIdleTime;
 		mMoveTime = rhs.mMoveTime;
+		mPassengers = std::move(rhs.mPassengers);
 
-		mPassengers.clear();
-		mPassengers.reserve(mMaxPassengersCount);
-		for (const std::unique_ptr<const Person>& passenger : rhs.mPassengers)
-		{
-			mPassengers.push_back(std::make_unique<Person>(
-				passenger->GetName().c_str(), passenger->GetWeight()));
-		}
+		rhs.mPassengersWeight = 0;
+		rhs.mOdo = 0;
+		rhs.mIdleTime = 0;
+		rhs.mMoveTime = 0;
 
 		return *this;
 	}

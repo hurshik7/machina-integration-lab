@@ -12,9 +12,13 @@ class Sedan : public engine::vehicles::Vehicle, public engine::vehicles::interfa
 {
 public:
 	Sedan();
-	Sedan(const Sedan& other);
-	Sedan& operator=(const Sedan& rhs);
 	virtual ~Sedan();
+
+	// Move-only
+	Sedan(const Sedan&) = delete;
+	Sedan& operator=(const Sedan&) = delete;
+	Sedan(Sedan&& other) noexcept;
+	Sedan& operator=(Sedan&& rhs) noexcept;
 
 	bool AddTrailer(std::unique_ptr<Trailer> trailer);
 	bool RemoveTrailer();

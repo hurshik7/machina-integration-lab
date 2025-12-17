@@ -20,8 +20,12 @@ class Vehicle
 public:
 	Vehicle(unsigned int maxPassengersCount);
 	virtual ~Vehicle();
-	Vehicle(const Vehicle& other);
-	Vehicle& operator=(const Vehicle& rhs);
+
+	// Move-only
+	Vehicle(const Vehicle&) = delete;
+	Vehicle& operator=(const Vehicle&) = delete;
+	Vehicle(Vehicle&& other) noexcept;
+	Vehicle& operator=(Vehicle&& rhs) noexcept;
 
 	virtual unsigned int GetMaxSpeed() const = 0;
 
