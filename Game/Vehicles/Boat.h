@@ -1,6 +1,6 @@
 #pragma once
 #include "../../Engine/Vehicles/Vehicle.h"
-#include "../../Engine/Vehicles/Interfaces/ISailable.h"
+#include "../../Engine/Interfaces/ISailable.h"
 
 namespace game {
 namespace vehicles {
@@ -8,7 +8,7 @@ namespace vehicles {
 class Airplane;
 class Boatplane;
 
-class Boat : public engine::vehicles::Vehicle, public engine::vehicles::interfaces::ISailable
+class Boat : public engine::vehicles::Vehicle, public engine::interfaces::ISailable
 {
 public:
 	Boat(unsigned int maxPassengersCount);

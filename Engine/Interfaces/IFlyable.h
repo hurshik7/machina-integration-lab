@@ -1,7 +1,6 @@
 #pragma once
 
 namespace engine {
-namespace vehicles {
 namespace interfaces {
 
 class IFlyable
@@ -12,5 +11,4 @@ public:
 };
 
 } // namespace interfaces
-} // namespace vehicles
 } // namespace engine

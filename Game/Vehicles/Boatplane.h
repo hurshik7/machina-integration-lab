@@ -1,12 +1,12 @@
 #pragma once
 #include "../../Engine/Vehicles/Vehicle.h"
-#include "../../Engine/Vehicles/Interfaces/IFlyable.h"
-#include "../../Engine/Vehicles/Interfaces/ISailable.h"
+#include "../../Engine/Interfaces/IFlyable.h"
+#include "../../Engine/Interfaces/ISailable.h"
 
 namespace game {
 namespace vehicles {
 
-class Boatplane : public engine::vehicles::Vehicle, public engine::vehicles::interfaces::IFlyable, public engine::vehicles::interfaces::ISailable
+class Boatplane : public engine::vehicles::Vehicle, public engine::interfaces::IFlyable, public engine::interfaces::ISailable
 {
 public:
 	Boatplane(unsigned int maxPassengersCount);

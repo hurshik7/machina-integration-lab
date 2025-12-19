@@ -234,5 +234,5 @@ Add `Engine/Interfaces/IPassenger.h` with pure virtual methods for passenger beh
 
 - Why interface instead of template? (Runtime polymorphism needed for heterogeneous containers)
 - Why in Engine layer? (Engine defines what it needs, Game provides implementations)
-- Could we have more interfaces? (Yes: `IVehicle`, `ITraveler`, etc. for future expansion)
+- Other interfaces in Engine: `IDrivable`, `IFlyable`, `ISailable`, `IDivable` (all in `engine::interfaces`)
 - Performance impact of virtual calls? (Minimal - passenger operations are not performance-critical)

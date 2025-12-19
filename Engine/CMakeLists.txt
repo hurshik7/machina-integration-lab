@@ -10,11 +10,13 @@ set(ENGINE_SOURCES
 # Collect all Engine header files
 set(ENGINE_HEADERS
     Core/DeusExMachina.h
+    Core/TravelContext.h
     Vehicles/Vehicle.h
-    Vehicles/Interfaces/IDrivable.h
-    Vehicles/Interfaces/IFlyable.h
-    Vehicles/Interfaces/ISailable.h
-    Vehicles/Interfaces/IDivable.h
+    Interfaces/IPassenger.h
+    Interfaces/IDrivable.h
+    Interfaces/IFlyable.h
+    Interfaces/ISailable.h
+    Interfaces/IDivable.h
 )
 
 # Create static library
