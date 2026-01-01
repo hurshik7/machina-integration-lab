@@ -5,6 +5,10 @@ cmake_minimum_required(VERSION 3.15)
 set(ENGINE_SOURCES
     Core/DeusExMachina.cpp
     Vehicles/Vehicle.cpp
+    Capabilities/DrivingCapability.cpp
+    Capabilities/FlyingCapability.cpp
+    Capabilities/SailingCapability.cpp
+    Capabilities/DivingCapability.cpp
 )
 
 # Collect all Engine header files
@@ -13,10 +17,10 @@ set(ENGINE_HEADERS
     Core/TravelContext.h
     Vehicles/Vehicle.h
     Interfaces/IPassenger.h
-    Interfaces/IDrivable.h
-    Interfaces/IFlyable.h
-    Interfaces/ISailable.h
-    Interfaces/IDivable.h
+    Capabilities/DrivingCapability.h
+    Capabilities/FlyingCapability.h
+    Capabilities/SailingCapability.h
+    Capabilities/DivingCapability.h
 )
 
 # Create static library
